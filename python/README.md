@@ -10,7 +10,11 @@ To run the tests in this directory you can use
 
 (if you don't have `pytest` installed, run `python3 -m pip install pytest`).
 
-The code is my solution to an exercise for next term's CTiB. The problem description is listed below, and if you feel up to solving problems from an advanced programming class, then go ahead. It might be a lot more fun than looking at my solution...
+The code is my solution to an exercise for next term's CTiB. Well, the code is slightly modified to handle some cases that CTiB students aren't ready for (nor have to worry about), but it is almost the solution from there.
+
+The problem description is listed below, and if you feel up to solving problems from an advanced programming class, then go ahead. It might be a lot more fun than looking at my solution...
+
+In addition to the CTiB exercise, there are also two implementations of inplace bucket sorts.
 
 
 # CTiB Exercise
