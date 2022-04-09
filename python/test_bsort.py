@@ -5,7 +5,7 @@ from bsort import (
     count_keys,
     count_sort,
     bucket_sort,
-    inplace1
+    inplace1, inplace2
 )
 # the Counter class also counts, but doesn't
 # give us sorted keys, so we cannot use it for
@@ -52,6 +52,20 @@ def test_inplace1() -> None:
         keys = random.sample(range(10), n)  # FIXME 100
         x = list(zip(keys, vals))
         bucket_sorted = inplace1(x)
+        # We can't guarantee that we get a stable sort
+        # so compare the keys only
+        keys.sort()
+        assert keys == [k for k, _ in bucket_sorted]
+
+
+def test_inplace2() -> None:
+    """Test the inplace2() function."""
+    for _ in range(10):
+        n = random.randint(1, 10)
+        vals = list(range(n))
+        keys = random.sample(range(10), n)  # FIXME 100
+        x = list(zip(keys, vals))
+        bucket_sorted = inplace2(x)
         # We can't guarantee that we get a stable sort
         # so compare the keys only
         keys.sort()

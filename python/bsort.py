@@ -141,7 +141,8 @@ def inplace1(x: list[tuple[int, Any]]) -> list[tuple[int, Any]]:
 
     >>> inplace1([])
     []
-    >>> [k for k, v in inplace1([(1, "a"), (2, "b"), (1, "c"), (2, "d"), (4, "e")])]
+    >>> y = inplace1([(1, "a"), (2, "b"), (1, "c"), (2, "d"), (4, "e")])
+    >>> [k for k, _ in y]
     [1, 1, 2, 2, 4]
     """
     buckets = cumsum(count_keys(k for k, _ in x))
@@ -154,4 +155,30 @@ def inplace1(x: list[tuple[int, Any]]) -> list[tuple[int, Any]]:
             cur_buckets[k] += 1
             k, _ = x[i]  # get key for new value in x[i]
 
+    return x
+
+
+def inplace2(x: list[tuple[int, Any]]) -> list[tuple[int, Any]]:
+    """
+    Sort the keys and values in x using bucket sort.
+
+    The sort is done inplace so the only additional memory we use is
+    that necessary for the bucket counts.
+
+    We return x for convinience.
+
+    >>> inplace2([])
+    []
+    >>> y = inplace2([(1, "a"), (2, "b"), (1, "c"), (2, "d"), (4, "e")])
+    >>> [k for k, _ in y]
+    [1, 1, 2, 2, 4]
+    """
+    buckets = cumsum(count_keys(k for k, _ in x))
+    for i, (k, _) in enumerate(x):
+        # If we only swap down, we know that we never handle
+        # an entry already placed in its bucket
+        while i > buckets[k]:
+            x[i], x[buckets[k]] = x[buckets[k]], x[i]
+            buckets[k] += 1
+            k, _ = x[i]
     return x
