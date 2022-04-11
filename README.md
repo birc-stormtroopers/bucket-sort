@@ -177,7 +177,6 @@ Why does it work? Imagine that after running the algorhtm we have some elements 
 
 **Exercise:** Try implementing this algorithm. 
 
-----
 
 [^1]: The kind of bucket sort we consider here is really called a *histogram sort*. The more general bucket sort isn't guaranteed to run in linear time, as it splits keys into buckets and then needs to sort the buckets using some other method. We ignore the second part, since in bioinformatics we most frequently sort things where the second step isn't needed. Still, now you know that if you hear people talk about bucket sort as something else than what you see here, they might not be wrong. We are just looking at a specific kind of bucket sort.
 
