@@ -39,7 +39,7 @@ def count_keys(keys: Iterable[int]) -> list[int]:
     We return a list, `counts`. The list has
     `len(counts) == max(keys) + 1` so we can index into
     any key (including those that might not be included in
-    `keys`) and for each key `0 <= k <= max(keys)` 
+    `keys`) and for each key `0 <= k <= max(keys)`
     `counts[k]` is the number of times `k` occurs in `x`.
 
     Unlike the CTiB exercise, this implementation takes

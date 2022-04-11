@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-static size_t max_key(size_t n, unsigned int const keys[n])
+static size_t max_key(size_t n, const unsigned int keys[n])
 {
     unsigned int max = 0;
     for (size_t i = 0; i < n; i++)
@@ -10,7 +10,7 @@ static size_t max_key(size_t n, unsigned int const keys[n])
     return max;
 }
 
-static inline size_t no_buckets(size_t n, unsigned int const keys[n])
+static inline size_t no_buckets(size_t n, const unsigned int keys[n])
 {
     return (n == 0) ? 0 : (max_key(n, keys) + 1);
 }
@@ -46,4 +46,18 @@ void bsort_order(size_t n,
         order[buckets[keys[i]]++] = i;
 
     free(buckets);
+}
+
+void reorder(size_t n, unsigned int x[n], const size_t order[n])
+{
+    unsigned int *y = malloc(n * sizeof *y);
+
+    // Place the elements in y without overwriting anything in x
+    for (size_t i = 0; i < n; i++)
+        y[i] = x[order[i]];
+    // then copy the result back into x
+    for (size_t i = 0; i < n; i++)
+        x[i] = y[i];
+
+    free(y);
 }
