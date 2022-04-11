@@ -128,7 +128,7 @@ A check for this could look like this in Python
 ```python
 def in_bucket(i: int, k: int, begin: list[int], end: list[int]) -> bool:
     """Is i sitting in the bucket for key k?"""
-    begin[k] <= i < end[k]
+    return begin[k] <= i < end[k]
 ```
 
 Since we haven't placed any values to begin with, the initial state has `begin[k] == end[k]` for all keys, but the `begin` and `end` pointers both point at the beginning of the buckets.
@@ -149,9 +149,33 @@ To handle the rest of the array, we just repeat these two operations until `i` r
 
 ![Finishing the inplace bucket sort](figs/bucket-sort/Inplace1-2.png)
 
+In each step, we do one of two things: either we swap an entry into its bucket or we increment `i`. When we swap something into its bucket, we won't be swapping it again--next time we see it, we will just increment `i`--so we can only swap `O(len(x))` times. Since `i` is bounded by `len(x)`, we can only increment `i` `O(len(x))` times. Thus, the sweep through the pairs takes time `O(len(x))`, and since we don't use any additional memory (beyond the bucket counters we already made), the memory usage is `O(1)` for the sweep.
+
 **Exercise:** Try implementing this algorithm. Then try implementing it in another programming language.
 
+**Exercise:** Can you make the algorithms stable? (I don't know the answer; I didn't need a stable sort when I made them, so I haven't tried hard to do it, but there are applications where it could be a great help).
 
+We need the two `buckets` arrays to recognise when an element is already in its right bucket. The provide the range of placed elements for each key. Could we manage with just one array, though?
+
+The difficulty there is that when we swap elements forward we lose track of where bucket is. We need the `ends` buckets to know where to place new elements, so we cannot get rid of that, and if we don't have the beginning we cannot tell if an element at index `i` with `i < ends[x[i].key]` is already in the bucket or is sitting before the bucket starts.
+
+However, what if we only ever swap elements down? If we see `x[i]` and notice that `buckets[x[i].key] < i` we can swap `x[i]` down. We will never decrease `i` so we will never see that element again, and so we don't have to worry about accidentally moving it more than once. This does mean that we might have to skip past some indices `i` with `i <= bucket[x[i].key]`, leaving them in the wrong place, but maybe we will resolve that problem later. After all, at some point we will get to an index `j` with `buckets[x[j].key] == i` and then we will swap `x[i]` and `x[j]` and move `x[i]` upwards.
+
+We start with computing the buckets just as for the standard bucket sort.
+
+![Inplace bucket sort version 2 -- init](figs/bucket-sort/Inplace2-init.png)
+
+Then follow the rules above, swapping if that will swap `x[i]` to the left or increment `x[i]` otherwise.
+
+![Inplace bucket sort version 2 -- init](figs/bucket-sort/Inplace2-init-1.png)
+
+As you will have noticed on the figure, at the end we have the elements sorted. The last bucket isn't considered full yet, the last element sits at the right place but the `buckets[k]` counter hasn't increased accordingly. When we scan through the last bucket, if the last bit is already in the right bucket, we won't swap them in. We would need values at a later point to do that. It doesn't matter, however, when the reason that we do not swap them is that they are already in the right location.
+
+The complexity is obviously the same as the previous algorithm. We either swap an element into its right bucket or we increment `i`, and both operations are bounded by `O(len(x))`.
+
+Why does it work? Imagine that after running the algorhtm we have some elements sitting in the wrong buckets. They can't all sit in buckets lower than where they are supposed to sit--since we permute the elements--so at least one must sit in a bucket above where it should be. How did it end up in that position? If it was already there from the beginning, then when we reached it in the algorithm, we would have swapped it down. It doesn't matter what its bucket pointer was at that point, it must have been lower than the bucket it is currently sitting in. So it can't have been there from the beginning. That means that we swapped it there. It can't have been swapped to its bucket at that point, because then it would sit in its right bucket now, so when this element was swapped to its current position the index `i` was pointing to it. If that was the case, it would have been swapped down right after, so that doesn't work either. We have to conclude that such an incorrectly placed element cannot exist, so the sort must be working.
+
+**Exercise:** Try implementing this algorithm. 
 
 ----
 
