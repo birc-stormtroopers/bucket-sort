@@ -2,7 +2,7 @@
 
 This repo contains a bit of code for learning about count and bucket sort. It isn't a proper lesson, so adjust your expectations, but if you look at the `python` directory then there really is an exercise (and my own solution to it, if you feel lazy today).
 
-If you have had CTiB or GSA, you will already have seen these techniques for sorting, although the CTiB version was a simple but inefficient Python version. Here, we can explore how the techniques really work [^1].
+If you have had CTiB or GSA, you will already have seen these techniques for sorting, although the CTiB version was a simple but inefficient Python version. Here, we can explore how the techniques really work[^1].
 
 ## Count and bucket sort
 
@@ -115,7 +115,7 @@ The bucket sort we saw above is stable. We process the key-value pairs in the or
 
 Getting a stable version of a sorting algorithm sometimes incurs extra overhead. The quick-sort algorithm, for example, runs in `O(n log n)` with very little overhead, because its partitioning procedure swaps elements very efficiently, but if you want it to be stable, the partitioning gets more complicated, and that hurts the running time, so if you need a stable comparison sort you are often better off with a slower variant of merge sort, such as the Tim sort algorithm that is used in Python and many other languages' runtime system.
 
-Our bucket sort is both stable and highly efficient in running time, but it isn't "in place", meaning that it uses more than `O(1)` memory [^2]. We use `O(K)` memory for the buckets and `O(len(x))` to create a new `out` array. The `O(K)` is rarely a problem, we expect `K` to be small anyway, but the `O(len(x))` can be. If we were trying to sort an array of 32-bit integers of the length of the human chromosome 1, about 250 million nucleotides, then `x` and `out` are both a gigabyte. We can't do anything about `x`, we need the input data after all, but it would be nice not to have to use memory on `out` as well.
+Our bucket sort is both stable and highly efficient in running time, but it isn't "in place", meaning that it uses more than `O(1)` memory[^2]. We use `O(K)` memory for the buckets and `O(len(x))` to create a new `out` array. The `O(K)` is rarely a problem, we expect `K` to be small anyway, but the `O(len(x))` can be. If we were trying to sort an array of 32-bit integers of the length of the human chromosome 1, about 250 million nucleotides, then `x` and `out` are both a gigabyte. We can't do anything about `x`, we need the input data after all, but it would be nice not to have to use memory on `out` as well.
 
 I don't know how to bucket sort both stable and in-place (I plan to find out some day, I just haven't asked the right people yet), but I've come up with a couple of simple unstable in-place versions.
 
