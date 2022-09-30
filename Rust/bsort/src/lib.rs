@@ -1,24 +1,35 @@
-use std::{iter, slice::SliceIndex};
+use std::iter;
 
-fn count_keys(keys: impl Iterator<Item = usize>) -> Vec<usize>{
-    let (_, upper_bound) = if let (lower_bound, Some(upper_bound)) = keys.size_hint() { (lower_bound, upper_bound) } else { panic!("We cannot find an upper bound to the iterator") };
-    let mut counts = vec![0 as usize; upper_bound];  
-    for k in keys{
-        counts[k] += 1 
+fn count_keys(keys: impl Iterator<Item = usize>) -> Vec<usize> {
+    let (_, upper_bound) = if let (lower_bound, Some(upper_bound)) = keys.size_hint() {
+        (lower_bound, upper_bound)
+    } else {
+        panic!("We cannot find an upper bound to the iterator")
+    };
+    let mut counts = vec![0 as usize; upper_bound];
+    for k in keys {
+        counts[k] += 1
     }
-    return counts
+    return counts;
 }
 
-fn count_sort(x: Vec<usize>) -> Vec<usize>{
+fn count_sort(x: Vec<usize>) -> Vec<usize> {
     let mut i = 0 as usize;
     let mut out = vec![0 as usize; x.len()];
     let counts = count_keys(x.into_iter());
-    for (k, count) in counts.iter().enumerate(){
-        for (j, value) in iter::repeat(k).take(*count).enumerate(){
-            out[i+j] = value;
+    for (k, count) in counts.iter().enumerate() {
+        for (j, value) in iter::repeat(k).take(*count).enumerate() {
+            out[i + j] = value;
         }
         i += count;
     }
+    return out;
+}
+fn cumsum(x: Vec<usize>) -> Vec<usize> {
+    let mut out = vec![0 as usize; x.len()];
+    for i in 1..x.len(){
+         out[i] = out[i-1] + x[i-1]
+    }   
     return out
 }
 
@@ -34,5 +45,10 @@ mod tests {
     fn count_sort_works() {
         let result = count_sort(vec![1, 2, 1, 2, 4]);
         assert_eq!(result, vec![1, 1, 2, 2, 4]);
+    }
+    #[test]
+    fn cumsum_works_with_unique_values() {
+        let result = cumsum(vec![1, 2, 3]);
+        assert_eq!(result, vec![0, 1, 3]);
     }
 }
