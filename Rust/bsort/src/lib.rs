@@ -33,23 +33,17 @@ fn cumsum(x: Vec<usize>) -> Vec<usize> {
     return out
 }
 
-fn bucket_sort<T: Any>(mut x: Vec<(usize, T)>) -> Vec<(usize, T)>{
-    // Get vector of references to keys
-    let mut keys = Vec::new();
-    for tuple in &x {
-        keys.push(tuple.0);
-    }
-    // Get buckets
+fn bucket_sort_inplace<T: Any>(mut keys: Vec<usize>, mut values: Vec<T>) -> (Vec<usize>, Vec<T>){
     let mut buckets = cumsum(count_keys(keys.iter()));
-    // Reorder x
-    for (i, mut k) in keys.into_iter().enumerate(){
+    for (i, mut k) in keys.to_owned().into_iter().enumerate(){
         while i > buckets[k]{
-            x.swap(i, buckets[k]);
+            values.swap(i, buckets[k]);
+            keys.swap(i, buckets[k]);
             buckets[k] += 1;
-            (k, _) = x[i];
+            k = keys[i];
         }               
     }
-    return x
+    return (keys, values)
 }
 
     // buckets = cumsum(count_keys(k for k, _ in x))
@@ -104,12 +98,9 @@ mod tests {
     }
     #[test]
     fn bucket_sort_works() {
-        let inplace2 = bucket_sort(
-            vec![(1, 'a'), (2, 'b'), (1, 'c'), (2, 'd'), (4, 'e')]);
-        let mut result = Vec::with_capacity(inplace2.len()) ;
-        for tuple in inplace2 {
-            result.push(tuple.0)
-        }
+        let keys = vec![1, 2, 1, 2, 4];
+        let values = vec!['a', 'b', 'c', 'd', 'e'];
+        let (result, _) = bucket_sort(keys, values);
         assert_eq!(
             result,
             vec![1, 1, 2, 2, 4]);
