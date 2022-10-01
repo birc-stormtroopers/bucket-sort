@@ -1,5 +1,6 @@
-use std::{iter, any::Any};
+use std::{any::Any, iter};
 
+/// Count how many times we see each key in `keys`.
 fn count_keys<'a>(keys: impl Iterator<Item = &'a usize>) -> Vec<usize> {
     let (_, upper_bound) = if let (lower_bound, Some(upper_bound)) = keys.size_hint() {
         (lower_bound, upper_bound)
@@ -12,7 +13,7 @@ fn count_keys<'a>(keys: impl Iterator<Item = &'a usize>) -> Vec<usize> {
     }
     counts
 }
-
+/// Sort the values in x using count sort.
 pub fn count_sort(x: Vec<&usize>) -> Vec<usize> {
     let mut i = 0_usize;
     let mut out = vec![0_usize; x.len()];
@@ -25,32 +26,38 @@ pub fn count_sort(x: Vec<&usize>) -> Vec<usize> {
     }
     out
 }
+///  Calculate the cumulative sum of x.
 fn cumsum(x: Vec<usize>) -> Vec<usize> {
     let mut out = vec![0_usize; x.len()];
-    for i in 1..x.len(){
-         out[i] = out[i-1] + x[i-1]
-    }   
+    for i in 1..x.len() {
+        out[i] = out[i - 1] + x[i - 1]
+    }
     out
 }
 
-pub fn bucket_sort_inplace<T: Any>(mut keys: Vec<usize>, mut values: Vec<T>) -> (Vec<usize>, Vec<T>){
+/// Sort the keys and values in x using bucket sort.
+pub fn bucket_sort_inplace<T: Any>(
+    mut keys: Vec<usize>,
+    mut values: Vec<T>,
+) -> (Vec<usize>, Vec<T>) {
     let mut buckets = cumsum(count_keys(keys.iter()));
-    for (i, mut k) in keys.to_owned().into_iter().enumerate(){
-        while i > buckets[k]{
+    for (i, mut k) in keys.to_owned().into_iter().enumerate() {
+        while i > buckets[k] {
             values.swap(i, buckets[k]);
             keys.swap(i, buckets[k]);
             buckets[k] += 1;
             k = keys[i];
-        }               
+        }
     }
     (keys, values)
 }
 
-pub fn bucket_sort<T: Any + Copy>(keys: Vec<usize>, values: Vec<T>) -> (Vec<usize>, Vec<T>){
+/// Sort the keys and values in x using bucket sort.
+pub fn bucket_sort<T: Any + Copy>(keys: Vec<usize>, values: Vec<T>) -> (Vec<usize>, Vec<T>) {
     let mut buckets = cumsum(count_keys(keys.iter()));
-    let mut sorted_values: Vec<Option<T>> =vec![None; keys.len()];
+    let mut sorted_values: Vec<Option<T>> = vec![None; keys.len()];
     let mut sorted_keys = keys.to_owned();
-    for (i, k) in keys.iter().enumerate(){
+    for (i, k) in keys.iter().enumerate() {
         sorted_values[buckets[*k]] = Some(values[i]);
         sorted_keys[buckets[*k]] = keys[i];
         buckets[*k] += 1
@@ -75,7 +82,7 @@ mod tests {
     fn cumsum_works_with_unique_values() {
         let result = cumsum(vec![1, 2, 3]);
         assert_eq!(result, vec![0, 1, 3]);
-    }    
+    }
     #[test]
     fn cumsum_works_with_non_unique_values() {
         let result = cumsum(vec![0, 2, 2, 0, 1]);
@@ -86,17 +93,14 @@ mod tests {
         let keys = vec![1, 2, 1, 2, 4];
         let values = vec!['a', 'b', 'c', 'd', 'e'];
         let (result, _) = bucket_sort_inplace(keys, values);
-        assert_eq!(
-            result,
-            vec![1, 1, 2, 2, 4]);
+        assert_eq!(result, vec![1, 1, 2, 2, 4]);
     }
     #[test]
     fn bucket_sort_works() {
         let keys = vec![1, 2, 1, 2, 4];
         let values = vec!['a', 'b', 'c', 'd', 'e'];
         let (result_keys, result_values) = bucket_sort(keys, values);
-        assert_eq!(result_keys,vec![1, 1, 2, 2, 4]);
+        assert_eq!(result_keys, vec![1, 1, 2, 2, 4]);
         assert_eq!(result_values, vec!['a', 'c', 'b', 'd', 'e']);
-    }        
     }
-
+}
