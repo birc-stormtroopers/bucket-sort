@@ -1,6 +1,6 @@
-use std::iter;
+use std::{iter, any::Any};
 
-fn count_keys(keys: impl Iterator<Item = usize>) -> Vec<usize> {
+fn count_keys<'a>(keys: impl Iterator<Item = &'a usize>) -> Vec<usize> {
     let (_, upper_bound) = if let (lower_bound, Some(upper_bound)) = keys.size_hint() {
         (lower_bound, upper_bound)
     } else {
@@ -8,12 +8,12 @@ fn count_keys(keys: impl Iterator<Item = usize>) -> Vec<usize> {
     };
     let mut counts = vec![0 as usize; upper_bound];
     for k in keys {
-        counts[k] += 1
+        counts[*k] += 1
     }
     return counts;
 }
 
-fn count_sort(x: Vec<usize>) -> Vec<usize> {
+fn count_sort(x: Vec<&usize>) -> Vec<usize> {
     let mut i = 0 as usize;
     let mut out = vec![0 as usize; x.len()];
     let counts = count_keys(x.into_iter());
@@ -33,22 +33,85 @@ fn cumsum(x: Vec<usize>) -> Vec<usize> {
     return out
 }
 
+fn bucket_sort<T: Any>(mut x: Vec<(usize, T)>) -> Vec<(usize, T)>{
+    // Get vector of references to keys
+    let mut keys = Vec::new();
+    for tuple in &x {
+        keys.push(tuple.0);
+    }
+    // Get buckets
+    let mut buckets = cumsum(count_keys(keys.iter()));
+    // Reorder x
+    for (i, mut k) in keys.into_iter().enumerate(){
+        while i > buckets[k]{
+            x.swap(i, buckets[k]);
+            buckets[k] += 1;
+            (k, _) = x[i];
+        }               
+    }
+    return x
+}
+
+    // buckets = cumsum(count_keys(k for k, _ in x))
+    // for i, (k, _) in enumerate(x):
+    //     # If we only swap down, we know that we never handle
+    //     # an entry already placed in its bucket
+    //     while i > buckets[k]:
+    //         x[i], x[buckets[k]] = x[buckets[k]], x[i]
+    //         buckets[k] += 1
+    //         k, _ = x[i]
+    // return x
+
+// def bucket_sort(x: list[tuple[int, Any]]) -> list[tuple[int, Any]]:
+//     """
+//     Sort the keys and values in x using bucket sort.
+//     The keys in x must satisfy the constraints
+//     mentioned in `count_keys()`.
+//     >>> bucket_sort([])
+//     []
+//     >>> bucket_sort([(1, "a"), (2, "b"), (1, "c"), (2, "d"), (4, "e")])
+//     [(1, 'a'), (1, 'c'), (2, 'b'), (2, 'd'), (4, 'e')]
+//     """
+//     buckets = cumsum(count_keys(k for k, _ in x))
+//     out = [(0, None)] * len(x)
+//     for k, v in x:
+//         out[buckets[k]] = (k, v)
+//         buckets[k] += 1
+//     return out
+
 #[cfg(test)]
 mod tests {
     use super::*;
     #[test]
     fn count_keys_works() {
-        let result = count_keys(vec![1, 2, 2, 1, 4].into_iter());
+        let result = count_keys(vec![&1, &2, &2, &1, &4].into_iter());
         assert_eq!(result, vec![0, 2, 2, 0, 1]);
     }
     #[test]
     fn count_sort_works() {
-        let result = count_sort(vec![1, 2, 1, 2, 4]);
+        let result = count_sort(vec![&1, &2, &1, &2, &4]);
         assert_eq!(result, vec![1, 1, 2, 2, 4]);
     }
     #[test]
     fn cumsum_works_with_unique_values() {
         let result = cumsum(vec![1, 2, 3]);
         assert_eq!(result, vec![0, 1, 3]);
+    }    
+    #[test]
+    fn cumsum_works_with_non_unique_values() {
+        let result = cumsum(vec![0, 2, 2, 0, 1]);
+        assert_eq!(result, vec![0, 0, 2, 4, 4]);
+    }
+    #[test]
+    fn bucket_sort_works() {
+        let inplace2 = bucket_sort(
+            vec![(1, 'a'), (2, 'b'), (1, 'c'), (2, 'd'), (4, 'e')]);
+        let mut result = Vec::with_capacity(inplace2.len()) ;
+        for tuple in inplace2 {
+            result.push(tuple.0)
+        }
+        assert_eq!(
+            result,
+            vec![1, 1, 2, 2, 4]);
     }
 }
