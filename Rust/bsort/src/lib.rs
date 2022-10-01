@@ -6,16 +6,16 @@ fn count_keys<'a>(keys: impl Iterator<Item = &'a usize>) -> Vec<usize> {
     } else {
         panic!("We cannot find an upper bound to the iterator")
     };
-    let mut counts = vec![0 as usize; upper_bound];
+    let mut counts = vec![0_usize; upper_bound];
     for k in keys {
         counts[*k] += 1
     }
-    return counts;
+    counts
 }
 
 pub fn count_sort(x: Vec<&usize>) -> Vec<usize> {
-    let mut i = 0 as usize;
-    let mut out = vec![0 as usize; x.len()];
+    let mut i = 0_usize;
+    let mut out = vec![0_usize; x.len()];
     let counts = count_keys(x.into_iter());
     for (k, count) in counts.iter().enumerate() {
         for (j, value) in iter::repeat(k).take(*count).enumerate() {
@@ -23,14 +23,14 @@ pub fn count_sort(x: Vec<&usize>) -> Vec<usize> {
         }
         i += count;
     }
-    return out;
+    out
 }
 fn cumsum(x: Vec<usize>) -> Vec<usize> {
-    let mut out = vec![0 as usize; x.len()];
+    let mut out = vec![0_usize; x.len()];
     for i in 1..x.len(){
          out[i] = out[i-1] + x[i-1]
     }   
-    return out
+    out
 }
 
 pub fn bucket_sort_inplace<T: Any>(mut keys: Vec<usize>, mut values: Vec<T>) -> (Vec<usize>, Vec<T>){
@@ -43,7 +43,7 @@ pub fn bucket_sort_inplace<T: Any>(mut keys: Vec<usize>, mut values: Vec<T>) -> 
             k = keys[i];
         }               
     }
-    return (keys, values)
+    (keys, values)
 }
 
 pub fn bucket_sort<T: Any + Copy>(keys: Vec<usize>, values: Vec<T>) -> (Vec<usize>, Vec<T>){
@@ -55,7 +55,7 @@ pub fn bucket_sort<T: Any + Copy>(keys: Vec<usize>, values: Vec<T>) -> (Vec<usiz
         sorted_keys[buckets[*k]] = keys[i];
         buckets[*k] += 1
     }
-    return (sorted_keys, sorted_values.into_iter().flatten().collect())
+    (sorted_keys, sorted_values.into_iter().flatten().collect())
 }
 
 #[cfg(test)]
