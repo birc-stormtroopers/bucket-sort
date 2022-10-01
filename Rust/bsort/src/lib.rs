@@ -13,7 +13,7 @@ fn count_keys<'a>(keys: impl Iterator<Item = &'a usize>) -> Vec<usize> {
     return counts;
 }
 
-fn count_sort(x: Vec<&usize>) -> Vec<usize> {
+pub fn count_sort(x: Vec<&usize>) -> Vec<usize> {
     let mut i = 0 as usize;
     let mut out = vec![0 as usize; x.len()];
     let counts = count_keys(x.into_iter());
@@ -33,7 +33,7 @@ fn cumsum(x: Vec<usize>) -> Vec<usize> {
     return out
 }
 
-fn bucket_sort_inplace<T: Any>(mut keys: Vec<usize>, mut values: Vec<T>) -> (Vec<usize>, Vec<T>){
+pub fn bucket_sort_inplace<T: Any>(mut keys: Vec<usize>, mut values: Vec<T>) -> (Vec<usize>, Vec<T>){
     let mut buckets = cumsum(count_keys(keys.iter()));
     for (i, mut k) in keys.to_owned().into_iter().enumerate(){
         while i > buckets[k]{
@@ -46,16 +46,16 @@ fn bucket_sort_inplace<T: Any>(mut keys: Vec<usize>, mut values: Vec<T>) -> (Vec
     return (keys, values)
 }
 
-fn bucket_sort<T: Any + Copy>(keys: Vec<usize>, values: Vec<T>) -> (Vec<usize>, Vec<T>){
+pub fn bucket_sort<T: Any + Copy>(keys: Vec<usize>, values: Vec<T>) -> (Vec<usize>, Vec<T>){
     let mut buckets = cumsum(count_keys(keys.iter()));
-    let mut sorted_values = values.to_owned();
+    let mut sorted_values: Vec<Option<T>> =vec![None; keys.len()];
     let mut sorted_keys = keys.to_owned();
     for (i, k) in keys.iter().enumerate(){
-        sorted_values[buckets[*k]] = values[i];
+        sorted_values[buckets[*k]] = Some(values[i]);
         sorted_keys[buckets[*k]] = keys[i];
         buckets[*k] += 1
     }
-    return (sorted_keys, sorted_values)
+    return (sorted_keys, sorted_values.into_iter().flatten().collect())
 }
 
 #[cfg(test)]
