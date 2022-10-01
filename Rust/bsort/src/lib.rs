@@ -46,32 +46,17 @@ fn bucket_sort_inplace<T: Any>(mut keys: Vec<usize>, mut values: Vec<T>) -> (Vec
     return (keys, values)
 }
 
-    // buckets = cumsum(count_keys(k for k, _ in x))
-    // for i, (k, _) in enumerate(x):
-    //     # If we only swap down, we know that we never handle
-    //     # an entry already placed in its bucket
-    //     while i > buckets[k]:
-    //         x[i], x[buckets[k]] = x[buckets[k]], x[i]
-    //         buckets[k] += 1
-    //         k, _ = x[i]
-    // return x
-
-// def bucket_sort(x: list[tuple[int, Any]]) -> list[tuple[int, Any]]:
-//     """
-//     Sort the keys and values in x using bucket sort.
-//     The keys in x must satisfy the constraints
-//     mentioned in `count_keys()`.
-//     >>> bucket_sort([])
-//     []
-//     >>> bucket_sort([(1, "a"), (2, "b"), (1, "c"), (2, "d"), (4, "e")])
-//     [(1, 'a'), (1, 'c'), (2, 'b'), (2, 'd'), (4, 'e')]
-//     """
-//     buckets = cumsum(count_keys(k for k, _ in x))
-//     out = [(0, None)] * len(x)
-//     for k, v in x:
-//         out[buckets[k]] = (k, v)
-//         buckets[k] += 1
-//     return out
+fn bucket_sort<T: Any + Copy>(keys: Vec<usize>, values: Vec<T>) -> (Vec<usize>, Vec<T>){
+    let mut buckets = cumsum(count_keys(keys.iter()));
+    let mut sorted_values = values.to_owned();
+    let mut sorted_keys = keys.to_owned();
+    for (i, k) in keys.iter().enumerate(){
+        sorted_values[buckets[*k]] = values[i];
+        sorted_keys[buckets[*k]] = keys[i];
+        buckets[*k] += 1
+    }
+    return (sorted_keys, sorted_values)
+}
 
 #[cfg(test)]
 mod tests {
@@ -97,12 +82,21 @@ mod tests {
         assert_eq!(result, vec![0, 0, 2, 4, 4]);
     }
     #[test]
-    fn bucket_sort_works() {
+    fn bucket_sort_inplace_works() {
         let keys = vec![1, 2, 1, 2, 4];
         let values = vec!['a', 'b', 'c', 'd', 'e'];
-        let (result, _) = bucket_sort(keys, values);
+        let (result, _) = bucket_sort_inplace(keys, values);
         assert_eq!(
             result,
             vec![1, 1, 2, 2, 4]);
     }
-}
+    #[test]
+    fn bucket_sort_works() {
+        let keys = vec![1, 2, 1, 2, 4];
+        let values = vec!['a', 'b', 'c', 'd', 'e'];
+        let (result_keys, result_values) = bucket_sort(keys, values);
+        assert_eq!(result_keys,vec![1, 1, 2, 2, 4]);
+        assert_eq!(result_values, vec!['a', 'c', 'b', 'd', 'e']);
+    }        
+    }
+
